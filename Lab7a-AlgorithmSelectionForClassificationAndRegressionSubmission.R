@@ -770,37 +770,44 @@ print(paste("MAE =", sprintf(mae, fmt = "%#.4f")))
 
 ### 1.c. Decision tree for a classification problem with caret ----
 #### Load and split the dataset ----
-data(PimaIndiansDiabetes)
+library(readr)
+train_imputed <- read_csv("data/train_imputed.csv")
 
 # Define a 70:30 train:test data split of the dataset.
-train_index <- createDataPartition(PimaIndiansDiabetes$diabetes,
+train_index <- createDataPartition(train_imputed$Status,
                                    p = 0.7,
                                    list = FALSE)
-pima_indians_diabetes_train <- PimaIndiansDiabetes[train_index, ]
-pima_indians_diabetes_test <- PimaIndiansDiabetes[-train_index, ]
+train_imputed_train <- train_imputed[train_index, ]
+train_imputed_test <- train_imputed[-train_index, ]
 
 #### Train the model ----
 set.seed(7)
 # We apply the 5-fold cross validation resampling method
 train_control <- trainControl(method = "cv", number = 5)
-diabetes_caret_model_rpart <- train(diabetes ~ ., data = PimaIndiansDiabetes,
+train_imputed_caret_model_rpart <- train(Status ~ ., data = train_imputed,
                                     method = "rpart", metric = "Accuracy",
                                     trControl = train_control)
 
 #### Display the model's details ----
-print(diabetes_caret_model_rpart)
+print(train_imputed_caret_model_rpart)
 
 #### Make predictions ----
-predictions <- predict(diabetes_model_rpart,
-                       pima_indians_diabetes_test[, 1:8],
+predictions <- predict(train_imputed_model_rpart,
+                       train_imputed_test[, 1:11],
                        type = "class")
 
 #### Display the model's evaluation metrics ----
-table(predictions, pima_indians_diabetes_test$diabetes)
+table(predictions, train_imputed_test$Status)
+
+# Define the levels you expect in the Status variable
+expected_levels <- c("Y", "N")
+
+# Convert the Status variable to a factor with the defined levels
+train_imputed_test[, 1:12]$Status <- factor(train_imputed_test[, 1:12]$Status, levels = expected_levels)
 
 confusion_matrix <-
   caret::confusionMatrix(predictions,
-                         pima_indians_diabetes_test[, 1:9]$diabetes)
+                         train_imputed_test[, 1:12]$Status)
 print(confusion_matrix)
 
 fourfoldplot(as.table(confusion_matrix), color = c("grey", "lightblue"),
@@ -808,45 +815,47 @@ fourfoldplot(as.table(confusion_matrix), color = c("grey", "lightblue"),
 
 ### 1.d. Decision tree for a regression problem with CARET ----
 #### Load and split the dataset ----
-data(BostonHousing)
+
+library(readr)
+cubic_zirconia <- read_csv("data/cubic_zirconia.csv")
 
 # Define a 70:30 train:test data split of the dataset.
-train_index <- createDataPartition(BostonHousing$medv,
+train_index <- createDataPartition(cubic_zirconia$price,
                                    p = 0.7,
                                    list = FALSE)
-boston_housing_train <- BostonHousing[train_index, ]
-boston_housing_test <- BostonHousing[-train_index, ]
+cubic_zirconia_train <- cubic_zirconia[train_index, ]
+cubic_zirconia_test <- cubic_zirconia[-train_index, ]
 
 #### Train the model ----
 set.seed(7)
 # 7 fold repeated cross validation with 3 repeats
 train_control <- trainControl(method = "repeatedcv", number = 5, repeats = 3)
 
-housing_caret_model_cart <- train(medv ~ ., data = BostonHousing,
+cubic_zirconia_caret_model_cart <- train(price ~ ., data = cubic_zirconia,
                                   method = "rpart", metric = "RMSE",
                                   trControl = train_control)
 
 #### Display the model's details ----
-print(housing_caret_model_cart)
+print(cubic_zirconia_caret_model_cart)
 
 #### Make predictions ----
-predictions <- predict(housing_caret_model_cart, boston_housing_test[, 1:13])
+predictions <- predict(cubic_zirconia_caret_model_cart, cubic_zirconia_test[, 1:11])
 
 #### Display the model's evaluation metrics ----
 ##### RMSE ----
-rmse <- sqrt(mean((boston_housing_test$medv - predictions)^2))
+rmse <- sqrt(mean((cubic_zirconia_test$price - predictions)^2))
 print(paste("RMSE =", sprintf(rmse, fmt = "%#.4f")))
 
 ##### SSR ----
 # SSR is the sum of squared residuals (the sum of squared differences
 # between observed and predicted values)
-ssr <- sum((boston_housing_test$medv - predictions)^2)
+ssr <- sum((cubic_zirconia_test$price - predictions)^2)
 print(paste("SSR =", sprintf(ssr, fmt = "%#.4f")))
 
 ##### SST ----
 # SST is the total sum of squares (the sum of squared differences
 # between observed values and their mean)
-sst <- sum((boston_housing_test$medv - mean(boston_housing_test$medv))^2)
+sst <- sum((cubic_zirconia_test$price - mean(cubic_zirconia_test$price))^2)
 print(paste("SST =", sprintf(sst, fmt = "%#.4f")))
 
 ##### R Squared ----
@@ -860,7 +869,7 @@ print(paste("R Squared =", sprintf(r_squared, fmt = "%#.4f")))
 # interpret. For example, if you are predicting the amount paid in rent,
 # and the MAE is KES. 10,000, it means, on average, your model's predictions
 # are off by about KES. 10,000.
-absolute_errors <- abs(predictions - boston_housing_test$medv)
+absolute_errors <- abs(predictions - cubic_zirconia_test$price)
 mae <- mean(absolute_errors)
 print(paste("MAE =", sprintf(mae, fmt = "%#.4f")))
 
@@ -868,70 +877,44 @@ print(paste("MAE =", sprintf(mae, fmt = "%#.4f")))
 ### 2.a. Naïve Bayes Classifier for a Classification Problem without CARET ----
 # We use the naiveBayes function inside the e1071 package
 #### Load and split the dataset ----
-data(PimaIndiansDiabetes)
+
+library(readr)
+train_imputed <- read_csv("data/train_imputed.csv")
+
 
 # Define a 70:30 train:test data split of the dataset.
-train_index <- createDataPartition(PimaIndiansDiabetes$diabetes,
+train_index <- createDataPartition(train_imputed$Status,
                                    p = 0.7,
                                    list = FALSE)
-pima_indians_diabetes_train <- PimaIndiansDiabetes[train_index, ]
-pima_indians_diabetes_test <- PimaIndiansDiabetes[-train_index, ]
+train_imputed_train <- train_imputed[train_index, ]
+train_imputed_test <- train_imputed[-train_index, ]
 
 #### Train the model ----
-diabetes_model_nb <- naiveBayes(diabetes ~ .,
-                                data = pima_indians_diabetes_train)
+train_imputed_model_nb <- naiveBayes(Status ~ .,
+                                data = train_imputed_train)
 
 #### Display the model's details ----
-print(diabetes_model_nb)
+print(train_imputed_model_nb)
 
 #### Make predictions ----
-predictions <- predict(diabetes_model_nb,
-                       pima_indians_diabetes_test[, 1:8])
+predictions <- predict(train_imputed_model_nb,
+                       train_imputed_test[, 1:11])
 
 #### Display the model's evaluation metrics ----
+# Define the levels you expect in the Status variable
+expected_levels <- c("Y", "N")
+
+# Convert the Status variable to a factor with the defined levels
+train_imputed_test[, 1:12]$Status <- factor(train_imputed_test[, 1:12]$Status, levels = expected_levels)
+
 confusion_matrix <-
   caret::confusionMatrix(predictions,
-                         pima_indians_diabetes_test[, 1:9]$diabetes)
+                         train_imputed_test[, 1:12]$Status)
 print(confusion_matrix)
 
 fourfoldplot(as.table(confusion_matrix), color = c("grey", "lightblue"),
              main = "Confusion Matrix")
 
-### 2.b. Naïve Bayes Classifier for a Classification Problem with CARET ----
-#### Load and split the dataset ----
-data(PimaIndiansDiabetes)
-
-# Define a 70:30 train:test data split of the dataset.
-train_index <- createDataPartition(PimaIndiansDiabetes$diabetes,
-                                   p = 0.7,
-                                   list = FALSE)
-pima_indians_diabetes_train <- PimaIndiansDiabetes[train_index, ]
-pima_indians_diabetes_test <- PimaIndiansDiabetes[-train_index, ]
-
-#### Train the model ----
-# We apply the 5-fold cross validation resampling method
-set.seed(7)
-train_control <- trainControl(method = "cv", number = 5)
-diabetes_caret_model_nb <- train(diabetes ~ .,
-                                 data = pima_indians_diabetes_train,
-                                 method = "nb", metric = "Accuracy",
-                                 trControl = train_control)
-
-#### Display the model's details ----
-print(diabetes_caret_model_nb)
-
-#### Make predictions ----
-predictions <- predict(diabetes_caret_model_nb,
-                       pima_indians_diabetes_test[, 1:8])
-
-#### Display the model's evaluation metrics ----
-confusion_matrix <-
-  caret::confusionMatrix(predictions,
-                         pima_indians_diabetes_test[, 1:9]$diabetes)
-print(confusion_matrix)
-
-fourfoldplot(as.table(confusion_matrix), color = c("grey", "lightblue"),
-             main = "Confusion Matrix")
 
 ## 3.  k-Nearest Neighbours ----
 # The knn3() function is in the caret package and does not create a model.
@@ -940,109 +923,89 @@ fourfoldplot(as.table(confusion_matrix), color = c("grey", "lightblue"),
 
 ### 3.a. kNN for a classification problem without CARET's train function ----
 #### Load and split the dataset ----
-data(PimaIndiansDiabetes)
+
+library(readr)
+train_imputed <- read_csv("data/train_imputed.csv")
 
 # Define a 70:30 train:test data split of the dataset.
-train_index <- createDataPartition(PimaIndiansDiabetes$diabetes,
+train_index <- createDataPartition(train_imputed$Status,
                                    p = 0.7,
                                    list = FALSE)
-pima_indians_diabetes_train <- PimaIndiansDiabetes[train_index, ]
-pima_indians_diabetes_test <- PimaIndiansDiabetes[-train_index, ]
+train_imputed_train <- train_imputed[train_index, ]
+train_imputed_test <- train_imputed[-train_index, ]
 
 #### Train the model ----
-diabetes_caret_model_knn <- knn3(diabetes ~ ., data = pima_indians_diabetes_train, k=3)
+train_imputed_caret_model_knn <- knn3(Status ~ ., data = train_imputed_train, k=3)
 
 #### Display the model's details ----
-print(diabetes_caret_model_knn)
+print(train_imputed_caret_model_knn)
 
 #### Make predictions ----
-predictions <- predict(diabetes_caret_model_knn,
-                       pima_indians_diabetes_test[, 1:8],
+predictions <- predict(train_imputed_caret_model_knn,
+                       train_imputed_test[, 1:11],
                        type = "class")
 
 #### Display the model's evaluation metrics ----
-table(predictions, pima_indians_diabetes_test$diabetes)
+table(predictions, train_imputed_test$Status)
+
+# Define the levels you expect in the Status variable
+expected_levels <- c("Y", "N")
+
+# Convert the Status variable to a factor with the defined levels
+train_imputed_test[, 1:12]$Status <- factor(train_imputed_test[, 1:12]$Status, levels = expected_levels)
+
 
 # Or alternatively:
 confusion_matrix <-
   caret::confusionMatrix(predictions,
-                         pima_indians_diabetes_test$diabetes)
+                         train_imputed_test$Status)
 print(confusion_matrix)
 
 fourfoldplot(as.table(confusion_matrix), color = c("grey", "lightblue"),
              main = "Confusion Matrix")
 
-### 3.b. kNN for a regression problem without CARET's train function ----
-#### Load the dataset ----
-data(BostonHousing)
-BostonHousing$chas <- # nolint: object_name_linter.
-  as.numeric(as.character(BostonHousing$chas))
-x <- as.matrix(BostonHousing[, 1:13])
-y <- as.matrix(BostonHousing[, 14])
 
-#### Train the model ----
-housing_model_knn <- knnreg(x, y, k = 3)
-
-#### Display the model's details ----
-print(housing_model_knn)
-
-#### Make predictions ----
-predictions <- predict(housing_model_knn, x)
-
-#### Display the model's evaluation metrics ----
-##### RMSE ----
-rmse <- sqrt(mean((y - predictions)^2))
-print(paste("RMSE =", sprintf(rmse, fmt = "%#.4f")))
-
-##### SSR ----
-ssr <- sum((y - predictions)^2)
-print(paste("SSR =", sprintf(ssr, fmt = "%#.4f")))
-
-##### SST ----
-sst <- sum((y - mean(y))^2)
-print(paste("SST =", sprintf(sst, fmt = "%#.4f")))
-
-##### R Squared ----
-r_squared <- 1 - (ssr / sst)
-print(paste("R Squared =", sprintf(r_squared, fmt = "%#.4f")))
-
-##### MAE ----
-absolute_errors <- abs(predictions - y)
-mae <- mean(absolute_errors)
-print(paste("MAE =", sprintf(mae, fmt = "%#.4f")))
 
 ### 3.c. kNN for a classification problem with CARET's train function ----
 #### Load and split the dataset ----
-data(PimaIndiansDiabetes)
+library(readr)
+train_imputed <- read_csv("data/train_imputed.csv")
 
 # Define a 70:30 train:test data split of the dataset.
-train_index <- createDataPartition(PimaIndiansDiabetes$diabetes,
+train_index <- createDataPartition(train_imputed$Status,
                                    p = 0.7,
                                    list = FALSE)
-pima_indians_diabetes_train <- PimaIndiansDiabetes[train_index, ]
-pima_indians_diabetes_test <- PimaIndiansDiabetes[-train_index, ]
+train_imputed_train <- train_imputed[train_index, ]
+train_imputed_test <- train_imputed[-train_index, ]
 
 #### Train the model ----
 # We apply the 10-fold cross validation resampling method
 # We also apply the standardize data transform
 set.seed(7)
 train_control <- trainControl(method = "cv", number = 10)
-diabetes_caret_model_knn <- train(diabetes ~ ., data = PimaIndiansDiabetes,
+train_imputed_caret_model_knn <- train(Status ~ ., data = train_imputed,
                                   method = "knn", metric = "Accuracy",
                                   preProcess = c("center", "scale"),
                                   trControl = train_control)
 
 #### Display the model's details ----
-print(diabetes_caret_model_knn)
+print(train_imputed_caret_model_knn)
 
 #### Make predictions ----
-predictions <- predict(diabetes_caret_model_knn,
-                       pima_indians_diabetes_test[, 1:8])
+predictions <- predict(train_imputed_caret_model_knn,
+                       train_imputed_test[, 1:11])
 
 #### Display the model's evaluation metrics ----
+
+# Define the levels you expect in the Status variable
+expected_levels <- c("Y", "N")
+
+# Convert the Status variable to a factor with the defined levels
+train_imputed_test[, 1:12]$Status <- factor(train_imputed_test[, 1:12]$Status, levels = expected_levels)
+
 confusion_matrix <-
   caret::confusionMatrix(predictions,
-                         pima_indians_diabetes_test[, 1:9]$diabetes)
+                         train_imputed_test[, 1:12]$Status)
 print(confusion_matrix)
 
 fourfoldplot(as.table(confusion_matrix), color = c("grey", "lightblue"),
@@ -1050,47 +1013,49 @@ fourfoldplot(as.table(confusion_matrix), color = c("grey", "lightblue"),
 
 ### 3.d. kNN for a regression problem with CARET's train function ----
 #### Load and split the dataset ----
-data(BostonHousing)
 
-# Define an 80:20 train:test data split of the dataset.
-train_index <- createDataPartition(BostonHousing$medv,
+library(readr)
+cubic_zirconia <- read_csv("data/cubic_zirconia.csv")
+
+# Define an 80:20 train:test data split of the Cubic Zirconia dataset.
+train_index <- createDataPartition(cubic_zirconia$price,
                                    p = 0.8,
                                    list = FALSE)
-boston_housing_train <- BostonHousing[train_index, ]
-boston_housing_test <- BostonHousing[-train_index, ]
+cubic_zirconia_train <- cubic_zirconia[train_index, ]
+cubic_zirconia_test <- cubic_zirconia[-train_index, ]
 
 #### Train the model ----
 # We apply the 5-fold cross validation resampling method
 # We also apply the standardize data transform
 set.seed(7)
 train_control <- trainControl(method = "cv", number = 5)
-housing_caret_model_knn <- train(medv ~ ., data = BostonHousing,
+cubic_zirconia_caret_model_knn <- train(price ~ ., data = cubic_zirconia,
                                  method = "knn", metric = "RMSE",
                                  preProcess = c("center", "scale"),
                                  trControl = train_control)
 
 #### Display the model's details ----
-print(housing_caret_model_knn)
+print(cubic_zirconia_caret_model_knn)
 
 #### Make predictions ----
-predictions <- predict(housing_caret_model_knn,
-                       boston_housing_test[, 1:13])
+predictions <- predict(cubic_zirconia_caret_model_knn,
+                       cubic_zirconia_test[, 1:11])
 
 #### Display the model's evaluation metrics ----
 ##### RMSE ----
-rmse <- sqrt(mean((boston_housing_test$medv - predictions)^2))
+rmse <- sqrt(mean((cubic_zirconia$price - predictions)^2))
 print(paste("RMSE =", sprintf(rmse, fmt = "%#.4f")))
 
 ##### SSR ----
 # SSR is the sum of squared residuals (the sum of squared differences
 # between observed and predicted values)
-ssr <- sum((boston_housing_test$medv - predictions)^2)
+ssr <- sum((cubic_zirconia_test$price - predictions)^2)
 print(paste("SSR =", sprintf(ssr, fmt = "%#.4f")))
 
 ##### SST ----
 # SST is the total sum of squares (the sum of squared differences
 # between observed values and their mean)
-sst <- sum((boston_housing_test$medv - mean(boston_housing_test$medv))^2)
+sst <- sum((cubic_zirconia_test$price - mean(cubic_zirconia_test$price))^2)
 print(paste("SST =", sprintf(sst, fmt = "%#.4f")))
 
 ##### R Squared ----
@@ -1104,39 +1069,41 @@ print(paste("R Squared =", sprintf(r_squared, fmt = "%#.4f")))
 # interpret. For example, if you are predicting the amount paid in rent,
 # and the MAE is KES. 10,000, it means, on average, your model's predictions
 # are off by about KES. 10,000.
-absolute_errors <- abs(predictions - boston_housing_test$medv)
+absolute_errors <- abs(predictions - cubic_zirconia_test$price)
 mae <- mean(absolute_errors)
 print(paste("MAE =", sprintf(mae, fmt = "%#.4f")))
 
 ## 4.  Support Vector Machine ----
 ### 4.a. SVM Classifier for a classification problem without CARET ----
 #### Load and split the dataset ----
-data(PimaIndiansDiabetes)
+
+library(readr)
+train_imputed <- read_csv("data/train_imputed.csv")
 
 # Define a 70:30 train:test data split of the dataset.
-train_index <- createDataPartition(PimaIndiansDiabetes$diabetes,
+train_index <- createDataPartition(train_impute$Status,
                                    p = 0.7,
                                    list = FALSE)
-pima_indians_diabetes_train <- PimaIndiansDiabetes[train_index, ]
-pima_indians_diabetes_test <- PimaIndiansDiabetes[-train_index, ]
+train_impute_train <- train_impute[train_index, ]
+train_impute_test <- train_impute[-train_index, ]
 
 #### Train the model ----
-diabetes_model_svm <- ksvm(diabetes ~ ., data = pima_indians_diabetes_train,
+train_impute_model_svm <- ksvm(Status ~ ., data = train_impute_train,
                            kernel = "rbfdot")
 
 #### Display the model's details ----
-print(diabetes_model_svm)
+print(train_impute_model_svm)
 
 #### Make predictions ----
-predictions <- predict(diabetes_model_svm, pima_indians_diabetes_test[, 1:8],
+predictions <- predict(train_impute_model_svm, train_impute_test[, 1:11],
                        type = "response")
 
 #### Display the model's evaluation metrics ----
-table(predictions, pima_indians_diabetes_test$diabetes)
+table(predictions, train_impute_test$Status)
 
 confusion_matrix <-
   caret::confusionMatrix(predictions,
-                         pima_indians_diabetes_test[, 1:9]$diabetes)
+                         train_impute_test[, 1:12]$Status)
 print(confusion_matrix)
 
 fourfoldplot(as.table(confusion_matrix), color = c("grey", "lightblue"),
@@ -1144,39 +1111,40 @@ fourfoldplot(as.table(confusion_matrix), color = c("grey", "lightblue"),
 
 ### 4.b. SVM Classifier for a regression problem without CARET ----
 #### Load and split the dataset ----
-data(BostonHousing)
+library(readr)
+cubic_zirconia <- read_csv("data/cubic_zirconia.csv")
 
 # Define an 80:20 train:test data split of the dataset.
-train_index <- createDataPartition(BostonHousing$medv,
+train_index <- createDataPartition(cubic_zirconia$price,
                                    p = 0.8,
                                    list = FALSE)
-boston_housing_train <- BostonHousing[train_index, ]
-boston_housing_test <- BostonHousing[-train_index, ]
+cubic_zirconia_train <- cubic_zirconia[train_index, ]
+cubic_zirconia_test <- cubic_zirconia[-train_index, ]
 
 #### Train the model ----
-housing_model_svm <- ksvm(medv ~ ., boston_housing_train, kernel = "rbfdot")
+cubic_zirconia_model_svm <- ksvm(price ~ ., cubic_zirconia_train, kernel = "rbfdot")
 
 #### Display the model's details ----
-print(housing_model_svm)
+print(cubic_zirconia_model_svm)
 
 #### Make predictions ----
-predictions <- predict(housing_model_svm, boston_housing_test)
+predictions <- predict(cubic_zirconia_model_svm, cubic_zirconia_test)
 
 #### Display the model's evaluation metrics ----
 ##### RMSE ----
-rmse <- sqrt(mean((boston_housing_test$medv - predictions)^2))
+rmse <- sqrt(mean((cubic_zirconia_test$price - predictions)^2))
 print(paste("RMSE =", sprintf(rmse, fmt = "%#.4f")))
 
 ##### SSR ----
 # SSR is the sum of squared residuals (the sum of squared differences
 # between observed and predicted values)
-ssr <- sum((boston_housing_test$medv - predictions)^2)
+ssr <- sum((cubic_zirconia_test$price - predictions)^2)
 print(paste("SSR =", sprintf(ssr, fmt = "%#.4f")))
 
 ##### SST ----
 # SST is the total sum of squares (the sum of squared differences
 # between observed values and their mean)
-sst <- sum((boston_housing_test$medv - mean(boston_housing_test$medv))^2)
+sst <- sum((cubic_zirconia_test$price - mean(cubic_zirconia_test$price))^2)
 print(paste("SST =", sprintf(sst, fmt = "%#.4f")))
 
 ##### R Squared ----
@@ -1190,7 +1158,7 @@ print(paste("R Squared =", sprintf(r_squared, fmt = "%#.4f")))
 # interpret. For example, if you are predicting the amount paid in rent,
 # and the MAE is KES. 10,000, it means, on average, your model's predictions
 # are off by about KES. 10,000.
-absolute_errors <- abs(predictions - boston_housing_test$medv)
+absolute_errors <- abs(predictions - cubic_zirconia_test$price)
 mae <- mean(absolute_errors)
 print(paste("MAE =", sprintf(mae, fmt = "%#.4f")))
 
@@ -1198,34 +1166,42 @@ print(paste("MAE =", sprintf(mae, fmt = "%#.4f")))
 # The SVM with Radial Basis kernel implementation can be used with caret for
 # classification as follows:
 #### Load and split the dataset ----
-data(PimaIndiansDiabetes)
+library(readr)
+train_imputed <- read_csv("data/train_imputed.csv")
 
 # Define a 70:30 train:test data split of the dataset.
-train_index <- createDataPartition(PimaIndiansDiabetes$diabetes,
+train_index <- createDataPartition(train_imputed$Status,
                                    p = 0.7,
                                    list = FALSE)
-pima_indians_diabetes_train <- PimaIndiansDiabetes[train_index, ]
-pima_indians_diabetes_test <- PimaIndiansDiabetes[-train_index, ]
+train_imputed_train <- train_imputed[train_index, ]
+train_imputed_test <- train_imputed[-train_index, ]
 
 #### Train the model ----
 set.seed(7)
 train_control <- trainControl(method = "cv", number = 5)
-diabetes_caret_model_svm_radial <- # nolint: object_length_linter.
-  train(diabetes ~ ., data = pima_indians_diabetes_train, method = "svmRadial",
+train_imputed_caret_model_svm_radial <- # nolint: object_length_linter.
+  train(diabetes ~ ., data = train_imputed_train, method = "svmRadial",
         metric = "Accuracy", trControl = train_control)
 
 #### Display the model's details ----
-print(diabetes_caret_model_svm_radial)
+print(train_imputed_caret_model_svm_radial)
 
 #### Make predictions ----
-predictions <- predict(diabetes_caret_model_svm_radial,
-                       pima_indians_diabetes_test[, 1:8])
+predictions <- predict(train_imputed_caret_model_svm_radial,
+                       train_imputed_test[, 1:11])
 
 #### Display the model's evaluation metrics ----
-table(predictions, pima_indians_diabetes_test$diabetes)
+table(predictions, train_imputed_test$Status)
+
+# Define the levels you expect in the Status variable
+expected_levels <- c("Y", "N")
+
+# Convert the Status variable to a factor with the defined levels
+train_imputed_test[, 1:12]$Status <- factor(train_imputed_test[, 1:12]$Status, levels = expected_levels)
+
 confusion_matrix <-
   caret::confusionMatrix(predictions,
-                         pima_indians_diabetes_test[, 1:9]$diabetes)
+                         train_imputed_test[, 1:12]$Status)
 print(confusion_matrix)
 
 fourfoldplot(as.table(confusion_matrix), color = c("grey", "lightblue"),
@@ -1235,45 +1211,46 @@ fourfoldplot(as.table(confusion_matrix), color = c("grey", "lightblue"),
 # The SVM with radial basis kernel implementation can be used with caret for
 # regression as follows:
 #### Load and split the dataset ----
-data(BostonHousing)
+library(readr)
+cubic_zirconia <- read_csv("data/cubic_zirconia.csv")
 
 # Define an 80:20 train:test data split of the dataset.
-train_index <- createDataPartition(BostonHousing$medv,
+train_index <- createDataPartition(cubic_zirconia$price,
                                    p = 0.8,
                                    list = FALSE)
-boston_housing_train <- BostonHousing[train_index, ]
-boston_housing_test <- BostonHousing[-train_index, ]
+cubic_zirconia_train <- cubic_zirconia[train_index, ]
+cubic_zirconia_test <- cubic_zirconia[-train_index, ]
 
 #### Train the model ----
 set.seed(7)
 train_control <- trainControl(method = "cv", number = 5)
-housing_caret_model_svm_radial <-
-  train(medv ~ ., data = boston_housing_train,
+cubic_zirconia_caret_model_svm_radial <-
+  train(price ~ ., data = cubic_zirconia_train,
         method = "svmRadial", metric = "RMSE",
         trControl = train_control)
 
 #### Display the model's details ----
-print(housing_caret_model_svm_radial)
+print(cubic_zirconia_caret_model_svm_radial)
 
 #### Make predictions ----
-predictions <- predict(housing_caret_model_svm_radial,
-                       boston_housing_test[, 1:13])
+predictions <- predict(cubic_zirconia_caret_model_svm_radial,
+                       cubic_zirconia_test[, 1:11])
 
 #### Display the model's evaluation metrics ----
 ##### RMSE ----
-rmse <- sqrt(mean((boston_housing_test$medv - predictions)^2))
+rmse <- sqrt(mean((cubic_zirconia_test$price - predictions)^2))
 print(paste("RMSE =", sprintf(rmse, fmt = "%#.4f")))
 
 ##### SSR ----
 # SSR is the sum of squared residuals (the sum of squared differences
 # between observed and predicted values)
-ssr <- sum((boston_housing_test$medv - predictions)^2)
+ssr <- sum((cubic_zirconia_test$price - predictions)^2)
 print(paste("SSR =", sprintf(ssr, fmt = "%#.4f")))
 
 ##### SST ----
 # SST is the total sum of squares (the sum of squared differences
 # between observed values and their mean)
-sst <- sum((boston_housing_test$medv - mean(boston_housing_test$medv))^2)
+sst <- sum((cubic_zirconia_test$price - mean(cubic_zirconia_test$price))^2)
 print(paste("SST =", sprintf(sst, fmt = "%#.4f")))
 
 ##### R Squared ----
@@ -1287,7 +1264,7 @@ print(paste("R Squared =", sprintf(r_squared, fmt = "%#.4f")))
 # interpret. For example, if you are predicting the amount paid in rent,
 # and the MAE is KES. 10,000, it means, on average, your model's predictions
 # are off by about KES. 10,000.
-absolute_errors <- abs(predictions - boston_housing_test$medv)
+absolute_errors <- abs(predictions - cubic_zirconia_test$price)
 mae <- mean(absolute_errors)
 print(paste("MAE =", sprintf(mae, fmt = "%#.4f")))
 

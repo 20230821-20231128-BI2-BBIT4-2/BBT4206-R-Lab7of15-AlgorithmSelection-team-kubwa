@@ -1,0 +1,536 @@
+---
+title: "Business Intelligence Lab Submission Markdown"
+author: "<team kubwa>"
+date: "<23/10/2023>"
+output:
+  github_document: 
+    toc: yes
+    toc_depth: 4
+    fig_width: 6
+    fig_height: 4
+    df_print: default
+editor_options:
+  chunk_output_type: console
+---
+
+# Student Details
+
++---------------------------------------------------+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| **Student ID Numbers and Names of Group Members** | *\<list one Student name, class group (just the letter; A, B, or C), and ID per line, e.g., 123456 - A - John Leposo; you should be between 2 and 5 members per group\>* |
+|                                                   |                                                                                                                                                                          |
+|                                                   | 1.  128998 - B - Crispus Nzano                                                                                                                                            |
+|                                                   |                                                                                                                                                                          |
+|                                                   | 2.  134100 - B - Timothy Obosi                                                                                                                                             |
+|                                                   |                                                                                                                                                                          |
+|                                                   | 3.  134092 - B - Alison Kuria                                                                                                                                                                                                                                                 |
+|                                                   |                                                                                                                                                                          |
+|                                                   | 4.  135269 - B - Clifford Kipchumba                                                                                                                          |
+|                                                   |                                                                                                                                                      |
+|                                                   | 5.  112826 - B - Matu Ngatia                                                                                                                          |
+|                                                   |                                                  
++---------------------------------------------------+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| **GitHub Classroom Group Name**                   | Team Kubwa                                                                                                       |
++---------------------------------------------------+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| **Course Code**                                   | BBT4206                                                                                                                                                                  |
++---------------------------------------------------+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| **Course Name**                                   | Business Intelligence II                                                                                                                                                 |
++---------------------------------------------------+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| **Program**                                       | Bachelor of Business Information Technology                                                                                                                              |
++---------------------------------------------------+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| **Semester Duration**                             | 21^st^ August 2023 to 28^th^ November 2023                                                                                                                               |
++---------------------------------------------------+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+
+# Setup Chunk
+
+We start by installing all the required packages
+
+```{r Install Packages, echo=TRUE, message=FALSE, warning=FALSE}
+## formatR - Required to format R code in the markdown ----
+
+if (require("languageserver")) {
+  require("languageserver")
+} else {
+  install.packages("languageserver", dependencies = TRUE,
+                   repos = "https://cloud.r-project.org")
+}
+
+# Introduction ----
+# Resampling methods are techniques that can be used to improve the performance
+# and reliability of machine learning algorithms. They work by creating
+# multiple training sets from the original training set. The model is then
+# trained on each training set, and the results are averaged. This helps to
+# reduce overfitting and improve the model's generalization performance.
+
+# Resampling methods include:
+## Splitting the dataset into train and test sets ----
+## Bootstrapping (sampling with replacement) ----
+## Basic k-fold cross validation ----
+## Repeated cross validation ----
+## Leave One Out Cross-Validation (LOOCV) ----
+
+# STEP 1. Install and Load the Required Packages ----
+## ggplot2 ----
+if (require("ggplot2")) {
+  require("ggplot2")
+} else {
+  install.packages("ggplot2", dependencies = TRUE,
+                   repos = "https://cloud.r-project.org")
+}
+
+## caret ----
+if (require("caret")) {
+  require("caret")
+} else {
+  install.packages("caret", dependencies = TRUE,
+                   repos = "https://cloud.r-project.org")
+}
+
+## mlbench ----
+if (require("mlbench")) {
+  require("mlbench")
+} else {
+  install.packages("mlbench", dependencies = TRUE,
+                   repos = "https://cloud.r-project.org")
+}
+
+## pROC ----
+if (require("pROC")) {
+  require("pROC")
+} else {
+  install.packages("pROC", dependencies = TRUE,
+                   repos = "https://cloud.r-project.org")
+}
+
+## dplyr ----
+if (require("dplyr")) {
+  require("dplyr")
+} else {
+  install.packages("dplyr", dependencies = TRUE,
+                   repos = "https://cloud.r-project.org")
+}
+
+if (require("caret")) {
+  require("caret")
+} else {
+  install.packages("caret", dependencies = TRUE,
+                   repos = "https://cloud.r-project.org")
+}
+
+## klaR ----
+if (require("klaR")) {
+  require("klaR")
+} else {
+  install.packages("klaR", dependencies = TRUE,
+                   repos = "https://cloud.r-project.org")
+}
+
+## e1071 ----
+if (require("e1071")) {
+  require("e1071")
+} else {
+  install.packages("e1071", dependencies = TRUE,
+                   repos = "https://cloud.r-project.org")
+}
+
+## readr ----
+if (require("readr")) {
+  require("readr")
+} else {
+  install.packages("readr", dependencies = TRUE,
+                   repos = "https://cloud.r-project.org")
+}
+
+## LiblineaR ----
+if (require("LiblineaR")) {
+  require("LiblineaR")
+} else {
+  install.packages("LiblineaR", dependencies = TRUE,
+                   repos = "https://cloud.r-project.org")
+}
+
+## naivebayes ----
+if (require("naivebayes")) {
+  require("naivebayes")
+} else {
+  install.packages("naivebayes", dependencies = TRUE,
+                   repos = "https://cloud.r-project.org")
+}
+
+if (!is.element("NHANES", installed.packages()[, 1])) {
+  install.packages("NHANES", dependencies = TRUE,
+                   repos = "https://cloud.r-project.org")
+}
+require("NHANES")
+
+## dplyr ----
+if (!is.element("dplyr", installed.packages()[, 1])) {
+  install.packages("dplyr", dependencies = TRUE,
+                   repos = "https://cloud.r-project.org")
+}
+require("dplyr")
+
+## naniar ----
+# Documentation:
+#   https://cran.r-project.org/package=naniar or
+#   https://www.rdocumentation.org/packages/naniar/versions/1.0.0
+if (!is.element("naniar", installed.packages()[, 1])) {
+  install.packages("naniar", dependencies = TRUE,
+                   repos = "https://cloud.r-project.org")
+}
+require("naniar")
+
+## ggplot2 ----
+# We require the "ggplot2" package to create more appealing visualizations
+if (!is.element("ggplot2", installed.packages()[, 1])) {
+  install.packages("ggplot2", dependencies = TRUE,
+                   repos = "https://cloud.r-project.org")
+}
+require("ggplot2")
+
+## MICE ----
+# We use the MICE package to perform data imputation
+if (!is.element("mice", installed.packages()[, 1])) {
+  install.packages("mice", dependencies = TRUE,
+                   repos = "https://cloud.r-project.org")
+}
+require("mice")
+
+## Amelia ----
+if (!is.element("Amelia", installed.packages()[, 1])) {
+  install.packages("Amelia", dependencies = TRUE,
+                   repos = "https://cloud.r-project.org")
+}
+require("Amelia")
+
+```
+
+------------------------------------------------------------------------
+
+**Note:** the following "*KnitR*" options have been set as the defaults in this markdown:\
+`knitr::opts_chunk$set(echo = TRUE, warning = FALSE, eval = TRUE, collapse = FALSE, tidy.opts = list(width.cutoff = 80), tidy = TRUE)`.
+
+More KnitR options are documented here <https://bookdown.org/yihui/rmarkdown-cookbook/chunk-options.html> and here <https://yihui.org/knitr/options/>.
+
+```{r setup, echo=TRUE, message=FALSE, warning=FALSE}
+knitr::opts_chunk$set(
+	eval = TRUE,
+	echo = TRUE,
+	warning = FALSE,
+	collapse = FALSE,
+	tidy = TRUE
+)
+```
+
+------------------------------------------------------------------------
+
+**Note:** the following "*R Markdown*" options have been set as the defaults in this markdown:
+
+> output:\
+> \
+> github_document:\
+> toc: yes\
+> toc_depth: 4\
+> fig_width: 6\
+> fig_height: 4\
+> df_print: default\
+> \
+> editor_options:\
+> chunk_output_type: console
+
+# Loading the Loan Status Train Imputed Dataset
+
+The Dataset is then loaded. 
+
+```{r Load Dataset}
+
+library(readr)
+train_imputed <- read_csv("C:/Users/Cris/github-classroom/BBT4206-R-Lab6of15-EvaluationMetrics-team-kubwa/data/train_imputed.csv")
+View(train_imputed)
+
+
+```
+
+## Description of the Dataset
+
+We then display the number of observations and number of variables. 12 Variables and 614 observations.
+
+```{r Your Fourth Code Chunk}
+dim(train_imputed)
+```
+
+Next, we display the quartiles for each numeric variable[*... this is the process of **"storytelling using the data."** The goal is to analyse the PimaIndians dataset and try to train a model to make predictions( which model is most suited for this dataset).*]{#highlight style="color: blue"}
+
+```{r Your Fifth Code Chunk}
+summary(train_imputed)
+```
+
+# \<Checking for missing values\>
+
+We first check if the dataset has missing values and it was found that there were therefore imputation was erformed on the dataset. There should be no missing values.
+
+```{r Your Sixth Code Chunk}
+# Are there missing values in the dataset?
+any_na(train_imputed)
+
+# How many?
+n_miss(train_imputed)
+
+# What is the percentage of missing data in the entire dataset?
+prop_miss(train_imputed)
+
+# How many missing values does each variable have?
+train_imputed %>% is.na() %>% colSums()
+
+# What is the number and percentage of missing values grouped by
+# each variable?
+miss_var_summary(train_imputed)
+
+# What is the number and percentage of missing values grouped by
+# each observation?
+miss_case_summary(train_imputed)
+
+# Which variables contain the most missing values?
+gg_miss_var(train_imputed)
+
+# Where are missing values located (the shaded regions in the plot)?
+vis_miss(train_imputed) + theme(axis.text.x = element_text(angle = 80))
+
+
+```
+
+## \<Determine the Baseline Accuracy\>
+Identify the number of instances that belong to each class (distribution or class breakdown).
+
+```{r Your Seventh Code Chunk}
+train_Status_freq <- train_imputed$`Status`
+cbind(frequency =
+        table(train_Status_freq),
+      percentage = prop.table(table(train_Status_freq)) * 100)
+```
+
+## \<Split the dataset\>
+We define a 75:25 train:test data split of the dataset. That is, 75% of the original data will be used to train the model and 25% of the original data will be used to test the model.
+
+```{r Your Eighth Code Chunk}
+train_index <- createDataPartition(train_imputed$`Status`,
+                                   p = 0.75,
+                                   list = FALSE)
+status_train <- train_imputed[train_index, ]
+status_test <- train_imputed[-train_index, ]
+
+## 1.d. Train the Model ----
+# We apply the 5-fold cross validation resampling method
+train_control <- trainControl(method = "cv", number = 5)
+
+# We then train a Generalized Linear Model to predict the value of medv.
+
+# `set.seed()` is a function that is used to specify a starting point for the
+# random number generator to a specific value. This ensures that every time you
+# run the same code, you will get the same "random" numbers.
+set.seed(7)
+status_model_glm <-
+  train(Status ~ ., data = status_train, method = "glm",
+        metric = "Accuracy", trControl = train_control)
+
+## 1.e. Display the Model's Performance ----
+### Option 1: Use the metric calculated by caret when training the model ----
+# The results show an accuracy of approximately 77% (slightly above the baseline
+# accuracy) and a Kappa of approximately 49%.
+print(status_model_glm)
+
+### Option 2: Compute the metric yourself using the test dataset ----
+# A confusion matrix is useful for multi-class classification problems.
+# Please watch the following video first: https://youtu.be/Kdsp6soqA7o
+
+# The Confusion Matrix is a type of matrix which is used to visualize the
+# predicted values against the actual Values. The row headers in the
+# confusion matrix represent predicted values and column headers are used to
+# represent actual values.
+
+# Check lengths
+
+length(status_test[, 1:12]$Status)
+
+# Check levels
+status_test[, 1:12]$Status <- as.factor(status_test[, 1:12]$Status)
+
+
+predictions <- predict(status_model_glm, status_test[, 1:11])
+confusion_matrix <-
+  caret::confusionMatrix(predictions,
+                         status_test[, 1:12]$Status)
+print(confusion_matrix)
+
+### Option 3: Display a graphical confusion matrix ----
+
+# Visualizing Confusion Matrix
+fourfoldplot(as.table(confusion_matrix), color = c("grey", "lightblue"),
+             main = "Confusion Matrix")
+
+
+```
+
+## \<RMSE, R Squared, and MAE\>
+RMSE stands for "Root Mean Squared Error" and it is defined as the average deviation of the predictions from the observations. R Squared (R^2) is also known as the "coefficient of determination". It provides a goodness of fit measure for the predictions to the observations.
+
+```{r Your Ninth Code Chunk}
+## 2.a. Load the dataset ----
+data(BostonHousing)
+summary(BostonHousing)
+BostonHousing_no_na <- na.omit(BostonHousing)
+
+# For reproducibility; by ensuring that you end up with the same
+# "random" samples
+set.seed(7)
+
+# We apply simple random sampling using the base::sample function to get
+# 10 samples
+train_index <- sample(1:dim(BostonHousing)[1], 10)
+bostonhousing_train <- BostonHousing[train_index, ]
+bostonhousing_test <- BostonHousing[-train_index, ]
+
+## 2.c. Train the Model ----
+# We apply bootstrapping with 1,000 repetitions
+train_control <- trainControl(method = "boot", number = 1000)
+
+# We then train a linear regression model to predict the value of medv.
+bostonhousing_model_lm <-
+  train(medv ~ ., data = bostonhousing_train,
+        na.action = na.omit, method = "lm", metric = "RMSE",
+        trControl = train_control)
+
+## 2.d. Display the Model's Performance ----
+### Option 1: Use the metric calculated by caret when training the model ----
+# The results show an RMSE value of approximately 4.3898 and
+# an R Squared value of approximately 0.8594
+# (the closer the R squared value is to 1, the better the model).
+print(bostonhousing_model_lm)
+
+### Option 2: Compute the metric yourself using the test dataset ----
+predictions <- predict(bostonhousing_model_lm, bostonhousing_test[, 1:13])
+
+# These are the 6 values for employment that the model has predicted:
+print(predictions)
+
+#### RMSE ----
+rmse <- sqrt(mean((bostonhousing_test$medv - predictions)^2))
+print(paste("RMSE =", rmse))
+
+#### SSR ----
+# SSR is the sum of squared residuals (the sum of squared differences
+# between observed and predicted values)
+ssr <- sum((bostonhousing_test$medv - predictions)^2)
+print(paste("SSR =", ssr))
+
+#### SST ----
+# SST is the total sum of squares (the sum of squared differences
+# between observed values and their mean)
+sst <- sum((bostonhousing_test$medv - mean(bostonhousing_test$medv))^2)
+print(paste("SST =", sst))
+
+#### R Squared ----
+# We then use SSR and SST to compute the value of R squared
+r_squared <- 1 - (ssr / sst)
+print(paste("R Squared =", r_squared))
+
+#### MAE ----
+# MAE measures the average absolute differences between the predicted and
+# actual values in a dataset. MAE is useful for assessing how close the model's
+# predictions are to the actual values.
+
+absolute_errors <- abs(predictions - bostonhousing_test$medv)
+mae <- mean(absolute_errors)
+print(paste("MAE =", mae))
+
+```
+
+## \<Area Under ROC Curve\>
+Area Under Receiver Operating Characteristic Curve (AUROC) or simply "Area Under Curve (AUC)" or "ROC" represents a model's ability to discriminate between two classes.
+
+```{r Your Tenth Code Chunk}
+status_freq <- train_imputed$Status
+cbind(frequency =
+        table(status_freq),
+      percentage = prop.table(table(status_freq)) * 100)
+
+## 3.c. Split the dataset ----
+# Define an 80:20 train:test data split of the dataset.
+train_index <- createDataPartition(train_imputed$Status,
+                                   p = 0.8,
+                                   list = FALSE)
+status_train <- train_imputed[train_index, ]
+status_test <- train_imputed[-train_index, ]
+
+## 3.d. Train the Model ----
+# We apply the 10-fold cross validation resampling method
+train_control <- trainControl(method = "cv", number = 10,
+                              classProbs = TRUE,
+                              summaryFunction = twoClassSummary)
+
+# We then train a k Nearest Neighbours Model to predict the value of Status
+
+set.seed(7)
+status_model_knn <-
+  train(Status ~ ., data = status_train, method = "knn",
+        metric = "ROC", trControl = train_control)
+## 3.e. Display the Model's Performance ----
+### Option 1: Use the metric calculated by caret when training the model ----
+# The results show a ROC value of approximately 0.76 (the closer to 1,
+# the higher the prediction accuracy) when the parameter k = 9
+# (9 nearest neighbours).
+
+print(status_model_knn)
+
+#### AUC ----
+# The type = "prob" argument specifies that you want to obtain class
+# probabilities as the output of the prediction instead of class labels.
+predictions <- predict(status_model_knn, status_test[, 1:12],
+                       type = "prob")
+
+# These are the class probability values for Status that the
+# model has predicted:
+print(predictions)
+
+roc_curve <- roc(status_test$Status, predictions$N)
+
+# Plot the ROC curve
+plot(roc_curve, main = "ROC Curve for KNN Model", print.auc = TRUE,
+     print.auc.x = 0.6, print.auc.y = 0.6, col = "blue", lwd = 2.5)
+
+
+```
+
+## \<Logarithmic Loss \>
+Logarithmic Loss (LogLoss) is an evaluation metric commonly used for assessing the performance of classification models, especially when the model provides probability estimates for each class.
+LogLoss measures how well the predicted probabilities align with the true binary outcomes.
+
+```{r Your Eleventh Code Chunk}
+# We apply the 5-fold repeated cross validation resampling method
+# with 3 repeats
+train_control <- trainControl(method = "repeatedcv", number = 5, repeats = 3,
+                              classProbs = TRUE,
+                              summaryFunction = mnLogLoss)
+set.seed(7)
+# This creates a CART model. One of the parameters used by a CART model is "cp".
+# "cp" refers to the "complexity parameter". It is used to impose a penalty to
+# the tree for having too many splits. The default value is 0.01.
+status_model_cart <- train(Status ~ ., data = train_imputed, method = "rpart",
+                         metric = "logLoss", trControl = train_control)
+
+## 4.c. Display the Model's Performance ----
+### Option 1: Use the metric calculated by caret when training the model ----
+# The results show that a cp value of ≈ 0 resulted in the lowest
+# LogLoss value. The lowest logLoss value is ≈ 0.46.
+print(status_model_cart)
+
+```
+
+**etc.** as per the lab submission requirements. Be neat and communicate in a clear and logical manner.
+
+
+
+
+
+
+
+
