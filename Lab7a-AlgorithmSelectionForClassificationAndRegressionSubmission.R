@@ -1180,7 +1180,7 @@ train_imputed_test <- train_imputed[-train_index, ]
 set.seed(7)
 train_control <- trainControl(method = "cv", number = 5)
 train_imputed_caret_model_svm_radial <- # nolint: object_length_linter.
-  train(diabetes ~ ., data = train_imputed_train, method = "svmRadial",
+  train(Status ~ ., data = train_imputed_train, method = "svmRadial",
         metric = "Accuracy", trControl = train_control)
 
 #### Display the model's details ----
